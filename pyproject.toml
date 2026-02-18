@@ -1,0 +1,66 @@
+[project]
+name = "pdf-to-png-mailer"
+version = "1.0.0"
+description = "Email monitoring service that converts PDF attachments to PNG images"
+requires-python = ">=3.11"
+authors = [
+    {name = "Your Name", email = "your.email@example.com"}
+]
+readme = "README.md"
+license = {text = "MIT"}
+
+[tool.ruff]
+# PEP 8 compliance with 100 character line length
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+# Enable pycodestyle (E, W), Pyflakes (F), and import sorting (I)
+select = ["E", "W", "F", "I", "N", "UP", "B", "A", "C4", "DTZ", "T10", "ISC", "ICN", "G", "PIE", "PYI", "Q", "RSE", "RET", "SIM", "TID", "TCH", "ARG", "PTH", "ERA", "PL", "RUF"]
+ignore = []
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]  # Allow unused imports in __init__.py
+"tests/**" = ["PLR2004", "S101"]  # Allow magic values and asserts in tests
+
+[tool.pytest.ini_options]
+# Test discovery and coverage settings
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",  # Verbose output
+    "--strict-markers",  # Strict marker validation
+    "--tb=short",  # Shorter traceback format
+    "--cov=src",  # Coverage for src directory
+    "--cov-report=term-missing",  # Show missing lines
+    "--cov-report=html",  # Generate HTML coverage report
+    "--cov-fail-under=60",  # Overall coverage threshold
+]
+
+[tool.coverage.run]
+branch = true
+source = ["src"]
+omit = [
+    "*/tests/*",
+    "*/__init__.py",
+]
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+skip_covered = false
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]
+
+# Critical path modules require ≥80% coverage
+[tool.coverage.html]
+directory = "htmlcov"
