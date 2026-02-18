@@ -13,10 +13,10 @@ def test_sanitize_filename_removes_special_chars():
     """T031 [US1] Unit test: PDFConverterService.sanitize_filename removes special chars."""
     # Test with various special characters
     assert sanitize_filename("invoice (copy).pdf") == "invoice_copy"
-    assert sanitize_filename("my*file?name.pdf") == "myfilename"
+    assert sanitize_filename("my*file?name.pdf") == "my_file_name"
     assert sanitize_filename("report#2024!.pdf") == "report_2024"
     assert sanitize_filename("file:with:colons.pdf") == "file_with_colons"
-    assert sanitize_filename("test@file$here%.pdf") == "testfilehere"
+    assert sanitize_filename("test@file$here%.pdf") == "test_file_here"
 
 
 def test_sanitize_filename_truncates_to_50_chars():

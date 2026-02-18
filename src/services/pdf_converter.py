@@ -35,7 +35,6 @@ class PDFConverterService:
         """Initialize PDF converter service."""
         self.target_resolution = (1920, 1080)
         self.target_dpi = 300
-        self.quality = 95
 
     def convert_pdf_to_png(
         self,
@@ -70,7 +69,8 @@ class PDFConverterService:
             "-density", str(self.target_dpi),  # Set DPI for PDF reading
             str(pdf_path),
             "-resize", f"{self.target_resolution[0]}x{self.target_resolution[1]}!",  # Force exact size
-            "-quality", str(self.quality),
+            "-extent", f"{self.target_resolution[0]}x{self.target_resolution[1]}!",  # Force exact size
+            "-gravity center",
             str(output_pattern)
         ]
 
