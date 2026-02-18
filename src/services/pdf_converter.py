@@ -71,6 +71,7 @@ class PDFConverterService:
             "-resize", f"{self.target_resolution[0]}x{self.target_resolution[1]}!",  # Force exact size
             "-extent", f"{self.target_resolution[0]}x{self.target_resolution[1]}!",  # Force exact size
             "-gravity center",
+            "-background white", # Default for when there is no background, we don't want transparent PNGs
             str(output_pattern)
         ]
 
