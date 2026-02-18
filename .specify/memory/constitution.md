@@ -76,9 +76,7 @@ Follow-up TODOs: None
 
 **Declarative Rules:**
 - PDF processing operations MUST complete within performance budgets:
-  - Small PDFs (<5MB): <2 seconds end-to-end
-  - Medium PDFs (5-20MB): <5 seconds end-to-end
-  - Large PDFs (>20MB): <15 seconds end-to-end
+  - Per-PDF processing: <2 minutes end-to-end (asynchronous email workflow; user does not expect immediate response)
 - Memory usage MUST remain within reasonable bounds:
   - Peak memory: <500MB for typical workloads
   - No memory leaks in long-running processes

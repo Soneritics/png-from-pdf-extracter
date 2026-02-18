@@ -92,7 +92,7 @@ When PDF processing fails for any reason (corrupted PDF, processing errors, syst
 ### Functional Requirements
 
 - **FR-001**: System MUST continuously monitor the INBOX folder of an IMAP email account for new incoming messages with a polling interval of 60 seconds
-- **FR-027**: System MUST implement exponential backoff for IMAP connection failures: 60s → 120s → 240s up to a maximum of 15 minutes between retry attempts
+- **FR-027**: System MUST implement exponential backoff for IMAP connection failures with the following sequence: 60s → 120s → 240s → 480s → 900s (capped at 15 minutes) between retry attempts, retrying indefinitely until connection is restored
 - **FR-028**: System MUST log every IMAP connection failure attempt with timestamp and error details
 - **FR-002**: System MUST validate incoming email sender addresses against a configured regex whitelist pattern
 - **FR-003**: System MUST extract all PDF file attachments from emails sent by whitelisted senders
@@ -119,12 +119,13 @@ When PDF processing fails for any reason (corrupted PDF, processing errors, syst
 - **FR-024**: System MUST NOT log routine operational events such as successful email processing, image conversions, or email sends
 - **FR-025**: System MUST attempt encrypted (TLS/SSL) connections to IMAP and SMTP servers by default
 - **FR-026**: System MUST fall back to unencrypted connections when TLS/SSL negotiation fails with email servers
+- **FR-029**: System MUST use only Python standard library modules for runtime dependencies; external packages are limited to development and testing tools only
 
 ### Non-Functional Requirements
 
 **Observability**:
 - **NFR-001**: System MUST log critical errors including: IMAP/SMTP connection failures, authentication failures, PDF processing failures, email send failures, configuration errors
-- **NFR-001a**: System MUST log every IMAP connection failure with exponential backoff timing (60s, 120s, 240s intervals up to 15 min maximum)
+- **NFR-001a**: System MUST log every IMAP connection failure with exponential backoff timing (60s, 120s, 240s, 480s, 900s capped) between retries
 - **NFR-002**: System MUST NOT log successful operations (email retrieved, PDF converted, images sent) to minimize log volume and storage requirements
 - **NFR-003**: Error log entries MUST include timestamp and sufficient context for debugging (e.g., email subject, sender, error type)
 
@@ -137,7 +138,7 @@ When PDF processing fails for any reason (corrupted PDF, processing errors, syst
 - **NFR-007**: System MUST delete processed emails only after successful reply email transmission to ensure no lost notifications
 - **NFR-008**: System MUST tolerate duplicate processing of the same email (idempotent design desirable but not guaranteed)
 - **NFR-009**: System MUST process emails sequentially to prevent resource exhaustion and ensure predictable behavior under load
-- **NFR-010**: System MUST retry IMAP connections using exponential backoff (60s → 120s → 240s up to 15 min max) when connection attempts fail
+- **NFR-010**: System MUST retry IMAP connections using exponential backoff (60s → 120s → 240s → 480s → 900s capped) when connection attempts fail
 - **NFR-011**: System MUST continue retry attempts indefinitely until IMAP connection is restored (no permanent failure state)
 
 ### Key Entities
@@ -195,5 +196,5 @@ When PDF processing fails for any reason (corrupted PDF, processing errors, syst
 - Processed emails are deleted from the IMAP inbox immediately after successful reply, preventing reprocessing
 - Logging output is minimal and focused only on critical errors; successful operations are not logged for performance and storage efficiency
 - Email server connections prioritize availability over strict security: TLS/SSL is attempted first but unencrypted fallback is acceptable when encryption negotiation fails
-- IMAP polling occurs at 60-second intervals with exponential backoff (60s→120s→240s up to 15 min max) applied when connection failures occur
+- IMAP polling occurs at 60-second intervals with exponential backoff (60s → 120s → 240s → 480s → 900s capped) applied when connection failures occur
 - Error notification emails include detailed technical information with stack traces and system context to facilitate debugging
