@@ -26,14 +26,14 @@
 
 **Tasks**:
 
-- [ ] T001 Create project structure with src/, tests/, and docs/ directories at repository root
-- [ ] T002 Initialize Python 3.11 project with pyproject.toml for tool configuration
-- [ ] T003 [P] Create requirements.txt (empty - all stdlib runtime dependencies per research.md)
-- [ ] T004 [P] Create requirements-dev.txt with pytest, pytest-cov, ruff, and pip-audit
-- [ ] T005 [P] Create .gitignore for Python (__pycache__, .pytest_cache, .env, *.pyc)
-- [ ] T006 [P] Create .env.example template with all required environment variables per contracts/service-contracts.md
-- [ ] T007 [P] Configure pyproject.toml with ruff linting rules (PEP 8, line length 100)
-- [ ] T008 [P] Configure pyproject.toml with pytest settings (test discovery, coverage thresholds ≥60% overall, ≥80% critical paths)
+- [X] T001 Create project structure with src/, tests/, and docs/ directories at repository root
+- [X] T002 Initialize Python 3.11 project with pyproject.toml for tool configuration
+- [X] T003 [P] Create requirements.txt (empty - all stdlib runtime dependencies per research.md)
+- [X] T004 [P] Create requirements-dev.txt with pytest, pytest-cov, ruff, and pip-audit
+- [X] T005 [P] Create .gitignore for Python (__pycache__, .pytest_cache, .env, *.pyc)
+- [X] T006 [P] Create .env.example template with all required environment variables per contracts/service-contracts.md
+- [X] T007 [P] Configure pyproject.toml with ruff linting rules (PEP 8, line length 100)
+- [X] T008 [P] Configure pyproject.toml with pytest settings (test discovery, coverage thresholds ≥60% overall, ≥80% critical paths)
 
 ---
 
@@ -45,24 +45,24 @@
 
 **Tasks**:
 
-- [ ] T009 Create Dockerfile with Python 3.11-alpine, ImageMagick, and GhostScript per contracts/service-contracts.md
-- [ ] T010 [P] Create docker-compose.yml with restart: unless-stopped and environment variable passthrough per FR-016
-- [ ] T011 [P] Create src/__init__.py (empty module marker)
-- [ ] T012 [P] Create src/models/__init__.py (empty module marker)
-- [ ] T013 [P] Create src/services/__init__.py (empty module marker)
-- [ ] T014 [P] Create src/utils/__init__.py (empty module marker)
-- [ ] T015 [P] Create tests/__init__.py (empty module marker)
-- [ ] T016 [P] Create tests/unit/__init__.py (empty module marker)
-- [ ] T017 [P] Create tests/integration/__init__.py (empty module marker)
-- [ ] T018 [P] Create tests/contract/__init__.py (empty module marker)
-- [ ] T019 Create src/config.py with Configuration dataclass and environment variable loading per data-model.md and contracts/service-contracts.md
-- [ ] T020 Implement configuration validation (port ranges, regex compilation, required vars) in src/config.py
-- [ ] T021 Create src/utils/logging.py with error-only logging setup per FR-023, FR-024, NFR-001, NFR-002
-- [ ] T022 [P] Create src/utils/file_utils.py with sanitize_filename function per FR-008 and data-model.md
-- [ ] T023 [P] Create src/models/email_message.py with EmailMessage dataclass per data-model.md
-- [ ] T024 [P] Create src/models/pdf_attachment.py with PDFAttachment dataclass per data-model.md
-- [ ] T025 [P] Create src/models/png_image.py with PNGImage dataclass per data-model.md
-- [ ] T026 [P] Create src/models/processing_job.py with ProcessingJob dataclass and JobStatus enum per data-model.md
+- [X] T009 Create Dockerfile with Python 3.11-alpine, ImageMagick, and GhostScript per contracts/service-contracts.md
+- [X] T010 [P] Create docker-compose.yml with restart: unless-stopped and environment variable passthrough per FR-016
+- [X] T011 [P] Create src/__init__.py (empty module marker)
+- [X] T012 [P] Create src/models/__init__.py (empty module marker)
+- [X] T013 [P] Create src/services/__init__.py (empty module marker)
+- [X] T014 [P] Create src/utils/__init__.py (empty module marker)
+- [X] T015 [P] Create tests/__init__.py (empty module marker)
+- [X] T016 [P] Create tests/unit/__init__.py (empty module marker)
+- [X] T017 [P] Create tests/integration/__init__.py (empty module marker)
+- [X] T018 [P] Create tests/contract/__init__.py (empty module marker)
+- [X] T019 Create src/config.py with Configuration dataclass and environment variable loading per data-model.md and contracts/service-contracts.md
+- [X] T020 Implement configuration validation (port ranges, regex compilation, required vars) in src/config.py
+- [X] T021 Create src/utils/logging.py with error-only logging setup per FR-023, FR-024, NFR-001, NFR-002
+- [X] T022 [P] Create src/utils/file_utils.py with sanitize_filename function per FR-008 and data-model.md
+- [X] T023 [P] Create src/models/email_message.py with EmailMessage dataclass per data-model.md
+- [X] T024 [P] Create src/models/pdf_attachment.py with PDFAttachment dataclass per data-model.md
+- [X] T025 [P] Create src/models/png_image.py with PNGImage dataclass per data-model.md
+- [X] T026 [P] Create src/models/processing_job.py with ProcessingJob dataclass and JobStatus enum per data-model.md
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,36 +76,36 @@
 
 ### Tests for User Story 1 (TDD - Write FIRST, Ensure FAIL)
 
-- [ ] T027 [P] [US1] Contract test: ImageMagick CLI availability in tests/contract/test_imagemagick.py
-- [ ] T028 [P] [US1] Contract test: ImageMagick converts single-page PDF to 1920x1080 PNG at 300 DPI in tests/contract/test_imagemagick.py
-- [ ] T029 [P] [US1] Contract test: ImageMagick converts multi-page PDF with sequential numbering in tests/contract/test_imagemagick.py
-- [ ] T030 [P] [US1] Contract test: GhostScript availability for PDF pre-processing in tests/contract/test_ghostscript.py
-- [ ] T031 [P] [US1] Unit test: PDFConverterService.sanitize_filename removes special chars in tests/unit/test_pdf_converter.py
-- [ ] T032 [P] [US1] Unit test: PDFConverterService.sanitize_filename truncates to 50 chars in tests/unit/test_pdf_converter.py
-- [ ] T033 [P] [US1] Unit test: PDFConverterService raises PDFCorruptedError on malformed PDF in tests/unit/test_pdf_converter.py
-- [ ] T034 [P] [US1] Unit test: PDFConverterService raises PDFPasswordProtectedError on encrypted PDF in tests/unit/test_pdf_converter.py
-- [ ] T035 [P] [US1] Contract test: SMTPService sends reply with all PNG attachments in tests/contract/test_smtp_service.py
-- [ ] T036 [P] [US1] Contract test: SMTPService sends error notification with stack trace in tests/contract/test_smtp_service.py
-- [ ] T037 [P] [US1] Integration test: End-to-end email→PDF→PNG→reply flow in tests/integration/test_end_to_end.py
-- [ ] T038 [P] [US1] Integration test: Multiple PDFs in one email processed correctly in tests/integration/test_end_to_end.py
+- [X] T027 [P] [US1] Contract test: ImageMagick CLI availability in tests/contract/test_imagemagick.py
+- [X] T028 [P] [US1] Contract test: ImageMagick converts single-page PDF to 1920x1080 PNG at 300 DPI in tests/contract/test_imagemagick.py
+- [X] T029 [P] [US1] Contract test: ImageMagick converts multi-page PDF with sequential numbering in tests/contract/test_imagemagick.py
+- [X] T030 [P] [US1] Contract test: GhostScript availability for PDF pre-processing in tests/contract/test_ghostscript.py
+- [X] T031 [P] [US1] Unit test: PDFConverterService.sanitize_filename removes special chars in tests/unit/test_pdf_converter.py
+- [X] T032 [P] [US1] Unit test: PDFConverterService.sanitize_filename truncates to 50 chars in tests/unit/test_pdf_converter.py
+- [X] T033 [P] [US1] Unit test: PDFConverterService raises PDFCorruptedError on malformed PDF in tests/unit/test_pdf_converter.py
+- [X] T034 [P] [US1] Unit test: PDFConverterService raises PDFPasswordProtectedError on encrypted PDF in tests/unit/test_pdf_converter.py
+- [X] T035 [P] [US1] Contract test: SMTPService sends reply with all PNG attachments in tests/contract/test_smtp_service.py
+- [X] T036 [P] [US1] Contract test: SMTPService sends error notification with stack trace in tests/contract/test_smtp_service.py
+- [X] T037 [P] [US1] Integration test: End-to-end email→PDF→PNG→reply flow in tests/integration/test_end_to_end.py
+- [X] T038 [P] [US1] Integration test: Multiple PDFs in one email processed correctly in tests/integration/test_end_to_end.py
 
 ### Implementation for User Story 1
 
-- [ ] T039 [US1] Implement PDFConverterService.__init__ and convert_pdf_to_png in src/services/pdf_converter.py with ImageMagick subprocess calls per FR-004, FR-005, FR-006, FR-007, FR-008
-- [ ] T040 [US1] Implement PDFConverterService exception handling (PDFConversionError, PDFCorruptedError, PDFPasswordProtectedError) in src/services/pdf_converter.py
-- [ ] T041 [P] [US1] Implement SMTPService.__init__ and connect with TLS fallback per FR-025, FR-026 in src/services/smtp_service.py
-- [ ] T042 [US1] Implement SMTPService.send_reply_with_attachments with MIME multipart construction per FR-009, FR-010 in src/services/smtp_service.py
-- [ ] T043 [US1] Implement SMTPService.send_error_notification with detailed stack trace per FR-012, FR-013 in src/services/smtp_service.py
-- [ ] T044 [US1] Implement SMTPService.disconnect in src/services/smtp_service.py
-- [ ] T045 [P] [US1] Implement IMAPService.__init__ and connect with TLS fallback per FR-025, FR-026 in src/services/imap_service.py
-- [ ] T046 [US1] Implement IMAPService.fetch_unseen_messages parsing EmailMessage from IMAP per FR-001 in src/services/imap_service.py
-- [ ] T047 [US1] Implement IMAPService.delete_message using IMAP store +FLAGS \\Deleted per FR-021 in src/services/imap_service.py
-- [ ] T048 [US1] Implement IMAPService.disconnect in src/services/imap_service.py
-- [ ] T049 [US1] Implement JobProcessorService.__init__ with dependency injection of all services in src/services/job_processor.py
-- [ ] T050 [US1] Implement JobProcessorService.process_next_email orchestrating full workflow per FR-003, FR-004, FR-009, FR-021 in src/services/job_processor.py
-- [ ] T051 [US1] Add error handling and error email sending to JobProcessorService.process_next_email per FR-012, FR-013 in src/services/job_processor.py
-- [ ] T052 [US1] Create src/main.py entry point that loads config, initializes services, and calls JobProcessorService.process_next_email in loop per FR-001
-- [ ] T053 [US1] Add minimal error-only logging to JobProcessorService per FR-023, FR-024, NFR-001, NFR-002 in src/services/job_processor.py
+- [X] T039 [US1] Implement PDFConverterService.__init__ and convert_pdf_to_png in src/services/pdf_converter.py with ImageMagick subprocess calls per FR-004, FR-005, FR-006, FR-007, FR-008
+- [X] T040 [US1] Implement PDFConverterService exception handling (PDFConversionError, PDFCorruptedError, PDFPasswordProtectedError) in src/services/pdf_converter.py
+- [X] T041 [P] [US1] Implement SMTPService.__init__ and connect with TLS fallback per FR-025, FR-026 in src/services/smtp_service.py
+- [X] T042 [US1] Implement SMTPService.send_reply_with_attachments with MIME multipart construction per FR-009, FR-010 in src/services/smtp_service.py
+- [X] T043 [US1] Implement SMTPService.send_error_notification with detailed stack trace per FR-012, FR-013 in src/services/smtp_service.py
+- [X] T044 [US1] Implement SMTPService.disconnect in src/services/smtp_service.py
+- [X] T045 [P] [US1] Implement IMAPService.__init__ and connect with TLS fallback per FR-025, FR-026 in src/services/imap_service.py
+- [X] T046 [US1] Implement IMAPService.fetch_unseen_messages parsing EmailMessage from IMAP per FR-001 in src/services/imap_service.py
+- [X] T047 [US1] Implement IMAPService.delete_message using IMAP store +FLAGS \\Deleted per FR-021 in src/services/imap_service.py
+- [X] T048 [US1] Implement IMAPService.disconnect in src/services/imap_service.py
+- [X] T049 [US1] Implement JobProcessorService.__init__ with dependency injection of all services in src/services/job_processor.py
+- [X] T050 [US1] Implement JobProcessorService.process_next_email orchestrating full workflow per FR-003, FR-004, FR-009, FR-021 in src/services/job_processor.py
+- [X] T051 [US1] Add error handling and error email sending to JobProcessorService.process_next_email per FR-012, FR-013 in src/services/job_processor.py
+- [X] T052 [US1] Create src/main.py entry point that loads config, initializes services, and calls JobProcessorService.process_next_email in loop per FR-001
+- [X] T053 [US1] Add minimal error-only logging to JobProcessorService per FR-023, FR-024, NFR-001, NFR-002 in src/services/job_processor.py
 
 **Checkpoint**: User Story 1 complete - Core PDF→PNG email workflow functional and independently testable
 
@@ -119,20 +119,20 @@
 
 ### Tests for User Story 2 (TDD - Write FIRST, Ensure FAIL)
 
-- [ ] T054 [P] [US2] Unit test: WhitelistService matches valid address in tests/unit/test_whitelist_service.py
-- [ ] T055 [P] [US2] Unit test: WhitelistService rejects invalid address in tests/unit/test_whitelist_service.py
-- [ ] T056 [P] [US2] Unit test: WhitelistService pattern '.*@company\\.com' matches user@company.com in tests/unit/test_whitelist_service.py
-- [ ] T057 [P] [US2] Unit test: WhitelistService pattern '.*@company\\.com' rejects user@external.com in tests/unit/test_whitelist_service.py
-- [ ] T058 [P] [US2] Unit test: WhitelistService raises ValueError on invalid regex in tests/unit/test_whitelist_service.py
-- [ ] T059 [P] [US2] Integration test: Whitelisted sender processed, non-whitelisted ignored in tests/integration/test_whitelist_flow.py
+- [X] T054 [P] [US2] Unit test: WhitelistService matches valid address in tests/unit/test_whitelist_service.py
+- [X] T055 [P] [US2] Unit test: WhitelistService rejects invalid address in tests/unit/test_whitelist_service.py
+- [X] T056 [P] [US2] Unit test: WhitelistService pattern '.*@company\\.com' matches user@company.com in tests/unit/test_whitelist_service.py
+- [X] T057 [P] [US2] Unit test: WhitelistService pattern '.*@company\\.com' rejects user@external.com in tests/unit/test_whitelist_service.py
+- [X] T058 [P] [US2] Unit test: WhitelistService raises ValueError on invalid regex in tests/unit/test_whitelist_service.py
+- [X] T059 [P] [US2] Integration test: Whitelisted sender processed, non-whitelisted ignored in tests/integration/test_whitelist_flow.py
 
 ### Implementation for User Story 2
 
-- [ ] T060 [US2] Implement WhitelistService.__init__ with regex compilation and validation per FR-019 in src/services/whitelist_service.py
-- [ ] T061 [US2] Implement WhitelistService.is_whitelisted with regex matching per FR-002 in src/services/whitelist_service.py
-- [ ] T062 [US2] Integrate WhitelistService into JobProcessorService.process_next_email per FR-002, FR-014 in src/services/job_processor.py
-- [ ] T063 [US2] Add sender validation before PDF extraction in JobProcessorService.process_next_email in src/services/job_processor.py
-- [ ] T064 [US2] Ensure non-whitelisted emails are ignored (no processing, no response) per FR-014 in src/services/job_processor.py
+- [X] T060 [US2] Implement WhitelistService.__init__ with regex compilation and validation per FR-019 in src/services/whitelist_service.py
+- [X] T061 [US2] Implement WhitelistService.is_whitelisted with regex matching per FR-002 in src/services/whitelist_service.py
+- [X] T062 [US2] Integrate WhitelistService into JobProcessorService.process_next_email per FR-002, FR-014 in src/services/job_processor.py
+- [X] T063 [US2] Add sender validation before PDF extraction in JobProcessorService.process_next_email in src/services/job_processor.py
+- [X] T064 [US2] Ensure non-whitelisted emails are ignored (no processing, no response) per FR-014 in src/services/job_processor.py
 
 **Checkpoint**: User Story 2 complete - Whitelist security functional and independently testable
 
@@ -146,16 +146,16 @@
 
 ### Tests for User Story 3 (TDD - Write FIRST, Ensure FAIL)
 
-- [ ] T065 [P] [US3] Contract test: SMTPService includes CC recipients in reply email headers in tests/contract/test_smtp_service.py
-- [ ] T066 [P] [US3] Contract test: SMTPService handles multiple semicolon-separated CC addresses in tests/contract/test_smtp_service.py
-- [ ] T067 [P] [US3] Contract test: SMTPService handles empty CC list gracefully in tests/contract/test_smtp_service.py
-- [ ] T068 [P] [US3] Integration test: CC recipients receive reply email copies in tests/integration/test_cc_flow.py
+- [X] T065 [P] [US3] Contract test: SMTPService includes CC recipients in reply email headers in tests/contract/test_smtp_service.py
+- [X] T066 [P] [US3] Contract test: SMTPService handles multiple semicolon-separated CC addresses in tests/contract/test_smtp_service.py
+- [X] T067 [P] [US3] Contract test: SMTPService handles empty CC list gracefully in tests/contract/test_smtp_service.py
+- [X] T068 [P] [US3] Integration test: CC recipients receive reply email copies in tests/integration/test_cc_flow.py
 
 ### Implementation for User Story 3
 
-- [ ] T069 [US3] Update SMTPService.send_reply_with_attachments to include CC addresses in MIME headers and recipient list per FR-011, FR-020 in src/services/smtp_service.py
-- [ ] T070 [US3] Update JobProcessorService.process_next_email to pass CC addresses from config to SMTPService in src/services/job_processor.py
-- [ ] T071 [US3] Add validation for CC addresses in Configuration (semicolon-separated parsing) per FR-020 in src/config.py
+- [X] T069 [US3] Update SMTPService.send_reply_with_attachments to include CC addresses in MIME headers and recipient list per FR-011, FR-020 in src/services/smtp_service.py
+- [X] T070 [US3] Update JobProcessorService.process_next_email to pass CC addresses from config to SMTPService in src/services/job_processor.py
+- [X] T071 [US3] Add validation for CC addresses in Configuration (semicolon-separated parsing) per FR-020 in src/config.py
 
 **Checkpoint**: User Story 3 complete - CC functionality working and independently testable
 
@@ -169,17 +169,17 @@
 
 ### Tests for User Story 4 (TDD - Write FIRST, Ensure FAIL)
 
-- [ ] T072 [P] [US4] Integration test: Corrupted PDF triggers error email with stack trace in tests/integration/test_error_notification.py
-- [ ] T073 [P] [US4] Integration test: Password-protected PDF triggers error email with technical details in tests/integration/test_error_notification.py
-- [ ] T074 [P] [US4] Integration test: Zero-page PDF triggers error email with descriptive message in tests/integration/test_error_notification.py
-- [ ] T075 [P] [US4] Integration test: Error email includes system context (email subject, PDF filenames) per FR-013 in tests/integration/test_error_notification.py
+- [X] T072 [P] [US4] Integration test: Corrupted PDF triggers error email with stack trace in tests/integration/test_error_notification.py
+- [X] T073 [P] [US4] Integration test: Password-protected PDF triggers error email with technical details in tests/integration/test_error_notification.py
+- [X] T074 [P] [US4] Integration test: Zero-page PDF triggers error email with descriptive message in tests/integration/test_error_notification.py
+- [X] T075 [P] [US4] Integration test: Error email includes system context (email subject, PDF filenames) per FR-013 in tests/integration/test_error_notification.py
 
 ### Implementation for User Story 4
 
-- [ ] T076 [US4] Enhance SMTPService.send_error_notification to include system context dict per FR-013 in src/services/smtp_service.py
-- [ ] T077 [US4] Update JobProcessorService error handling to capture full exception traceback and context in src/services/job_processor.py
-- [ ] T078 [US4] Ensure error emails sent for all processing failures (PDF conversion, SMTP send failures) per FR-012 in src/services/job_processor.py
-- [ ] T079 [US4] Verify original email NOT deleted when processing fails per NFR-007 in src/services/job_processor.py
+- [X] T076 [US4] Enhance SMTPService.send_error_notification to include system context dict per FR-013 in src/services/smtp_service.py
+- [X] T077 [US4] Update JobProcessorService error handling to capture full exception traceback and context in src/services/job_processor.py
+- [X] T078 [US4] Ensure error emails sent for all processing failures (PDF conversion, SMTP send failures) per FR-012 in src/services/job_processor.py
+- [X] T079 [US4] Verify original email NOT deleted when processing fails per NFR-007 in src/services/job_processor.py
 
 **Checkpoint**: User Story 4 complete - Error notification functional and independently testable
 
@@ -193,19 +193,19 @@
 
 ### Tests (TDD - Write FIRST, Ensure FAIL)
 
-- [ ] T080 [P] Contract test: IMAPService exponential backoff schedule (60s, 120s, 240s up to 900s) per FR-027 in tests/contract/test_imap_service.py
-- [ ] T081 [P] Contract test: IMAPService logs every connection failure per FR-028 in tests/contract/test_imap_service.py
-- [ ] T082 [P] Contract test: IMAPService retries indefinitely until connection restored per NFR-011 in tests/contract/test_imap_service.py
-- [ ] T083 [P] Integration test: Daemon continues running after IMAP connection restored in tests/integration/test_daemon_resilience.py
+- [X] T080 [P] Contract test: IMAPService exponential backoff schedule (60s, 120s, 240s up to 900s) per FR-027 in tests/contract/test_imap_service.py
+- [X] T081 [P] Contract test: IMAPService logs every connection failure per FR-028 in tests/contract/test_imap_service.py
+- [X] T082 [P] Contract test: IMAPService retries indefinitely until connection restored per NFR-011 in tests/contract/test_imap_service.py
+- [X] T083 [P] Integration test: Daemon continues running after IMAP connection restored in tests/integration/test_daemon_resilience.py
 
 ### Implementation
 
-- [ ] T084 Implement IMAPService.connect_with_backoff with exponential backoff per FR-027 in src/services/imap_service.py
-- [ ] T085 Add connection failure logging to IMAPService.connect_with_backoff per FR-028, NFR-001a in src/services/imap_service.py
-- [ ] T086 Implement JobProcessorService.run_daemon with continuous polling loop per FR-001, FR-016 in src/services/job_processor.py
-- [ ] T087 Integrate IMAPService.connect_with_backoff into JobProcessorService.run_daemon per FR-027 in src/services/job_processor.py
-- [ ] T088 Ensure sequential email processing (one at a time) in JobProcessorService.run_daemon per FR-022, NFR-009 in src/services/job_processor.py
-- [ ] T089 Update src/main.py to call JobProcessorService.run_daemon instead of manual loop
+- [X] T084 Implement IMAPService.connect_with_backoff with exponential backoff per FR-027 in src/services/imap_service.py
+- [X] T085 Add connection failure logging to IMAPService.connect_with_backoff per FR-028, NFR-001a in src/services/imap_service.py
+- [X] T086 Implement JobProcessorService.run_daemon with continuous polling loop per FR-001, FR-016 in src/services/job_processor.py
+- [X] T087 Integrate IMAPService.connect_with_backoff into JobProcessorService.run_daemon per FR-027 in src/services/job_processor.py
+- [X] T088 Ensure sequential email processing (one at a time) in JobProcessorService.run_daemon per FR-022, NFR-009 in src/services/job_processor.py
+- [X] T089 Update src/main.py to call JobProcessorService.run_daemon instead of manual loop
 
 **Checkpoint**: Daemon reliability complete - Continuous operation with connection recovery
 

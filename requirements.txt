@@ -1,0 +1,4 @@
+# Runtime Dependencies
+# All dependencies are from Python standard library (stdlib)
+# No external packages required for production runtime
+# This file exists to document the all-stdlib approach per research.md

@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  pdf-to-png-mailer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pdf-to-png-mailer
+    restart: unless-stopped
+    environment:
+      # Pass through all environment variables from .env file
+      - IMAP_HOST=${IMAP_HOST}
+      - IMAP_PORT=${IMAP_PORT}
+      - IMAP_USERNAME=${IMAP_USERNAME}
+      - IMAP_PASSWORD=${IMAP_PASSWORD}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USERNAME=${SMTP_USERNAME}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - SENDER_WHITELIST_REGEX=${SENDER_WHITELIST_REGEX}
+      - CC_ADDRESSES=${CC_ADDRESSES:-}
+      - POLLING_INTERVAL_SECONDS=${POLLING_INTERVAL_SECONDS:-60}
+      - MAX_RETRY_INTERVAL_SECONDS=${MAX_RETRY_INTERVAL_SECONDS:-900}
+    env_file:
+      - .env
+    # Memory limit (500MB per constitution requirement)
+    mem_limit: 500m
+    # Logging configuration (error-only per FR-023, FR-024)
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
