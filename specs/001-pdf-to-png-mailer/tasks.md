@@ -217,16 +217,16 @@
 
 **Tasks**:
 
-- [ ] T090 [P] Create README.md with project overview, quick start, and links to quickstart.md
-- [ ] T091 [P] Add docstrings to all public classes and methods in src/models/, src/services/, src/utils/
-- [ ] T092 [P] Run ruff linting and fix all warnings across src/ and tests/
+- [X] T090 [P] Create README.md with project overview, quick start, and links to quickstart.md
+- [X] T091 [P] Add docstrings to all public classes and methods in src/models/, src/services/, src/utils/
+- [X] T092 [P] Run ruff linting and fix all warnings across src/ and tests/
 - [ ] T093 [P] Run pytest with coverage report, verify ≥60% overall, ≥80% critical paths per constitution
-- [ ] T094 [P] Run pip-audit to check for security vulnerabilities (should be zero with all-stdlib approach)
-- [ ] T095 [P] Validate docker build succeeds: `docker build -t pdf-to-png-mailer .`
+- [X] T094 [P] Run pip-audit to check for security vulnerabilities (should be zero with all-stdlib approach)
+- [X] T095 [P] Validate docker build succeeds: `docker build -t pdf-to-png-mailer .`
 - [ ] T096 [P] Validate docker-compose up succeeds with .env.example template
 - [ ] T097 Test quickstart.md guide end-to-end: setup, build, run, send test email, verify PNG reply
-- [ ] T098 [P] Add inline comments for complex logic (exponential backoff, MIME construction, ImageMagick subprocess)
-- [ ] T099 [P] Create CONTRIBUTING.md with development setup and testing guidelines
+- [X] T098 [P] Add inline comments for complex logic (exponential backoff, MIME construction, ImageMagick subprocess)
+- [X] T099 [P] Create CONTRIBUTING.md with development setup and testing guidelines
 - [ ] T100 Final constitution gate check: tests passing, coverage met, linting clean, documentation complete
 
 **Checkpoint**: Feature complete and production-ready
