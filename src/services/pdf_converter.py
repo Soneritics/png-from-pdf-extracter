@@ -3,6 +3,7 @@
 import subprocess
 from pathlib import Path
 
+from src.config import Configuration
 from src.models.png_image import PNGImage
 from src.utils.logging import get_logger
 
@@ -27,15 +28,27 @@ class PDFPasswordProtectedError(PDFConversionError):
 class PDFConverterService:
     """Service for converting PDF files to PNG images using ImageMagick.
 
-    Uses ImageMagick's 'magick' command to convert PDF pages to PNG images
-    at 1920x1080 resolution with 300 DPI per FR-004, FR-005, FR-006, FR-007, FR-008.
+    Uses ImageMagick's 'magick' command to convert PDF pages to PNG images.
+    Resolution, DPI, background, and timeout are configured via Configuration
+    (defaults: 1920x1080, 300 DPI, white background, 120s timeout).
     """
 
-    def __init__(self) -> None:
-        """Initialize PDF converter service."""
-        self.target_resolution = (1920, 1080)
-        self.target_dpi = 300
-        self.background = "white" # Default for when there is no background, we don't want transparent PNGs
+    def __init__(self, config: Configuration | None = None) -> None:
+        """Initialize PDF converter service.
+
+        Args:
+            config: Optional Configuration instance. When None, defaults are used.
+        """
+        if config is not None:
+            self.target_resolution = (config.pdf_resolution_width, config.pdf_resolution_height)
+            self.target_dpi = config.pdf_density_dpi
+            self.background = config.pdf_background
+            self.timeout = config.pdf_conversion_timeout_seconds
+        else:
+            self.target_resolution = (1920, 1080)
+            self.target_dpi = 300
+            self.background = "white"
+            self.timeout = 120
 
     def convert_pdf_to_png(
         self,
@@ -81,7 +94,7 @@ class PDFConverterService:
                 cmd,
                 capture_output=True,
                 text=True,
-                timeout=120,  # 2 minute timeout per SC-001
+                timeout=self.timeout,
                 check=False  # Don't raise exception, we'll handle errors manually
             )
 
@@ -108,7 +121,7 @@ class PDFConverterService:
 
         except subprocess.TimeoutExpired as e:
             raise PDFConversionError(
-                f"PDF conversion timed out after 120 seconds: {pdf_path}"
+                f"PDF conversion timed out after {self.timeout} seconds: {pdf_path}"
             ) from e
         except FileNotFoundError as e:
             raise PDFConversionError(

@@ -32,6 +32,13 @@ class Configuration:
     polling_interval_seconds: int = 60
     max_retry_interval_seconds: int = 900
 
+    # PDF converter settings
+    pdf_resolution_width: int = 1920
+    pdf_resolution_height: int = 1080
+    pdf_density_dpi: int = 300
+    pdf_background: str = "white"
+    pdf_conversion_timeout_seconds: int = 120
+
     def __post_init__(self) -> None:
         """Validate configuration after initialization."""
         self._validate()
@@ -76,6 +83,20 @@ class Configuration:
             raise ValueError(
                 f"max_retry_interval_seconds ({self.max_retry_interval_seconds}) must be "
                 f"≥ polling_interval_seconds ({self.polling_interval_seconds})"
+            )
+
+        # Validate PDF converter settings
+        if self.pdf_resolution_width < 1:
+            raise ValueError(f"pdf_resolution_width must be >= 1, got {self.pdf_resolution_width}")
+        if self.pdf_resolution_height < 1:
+            raise ValueError(f"pdf_resolution_height must be >= 1, got {self.pdf_resolution_height}")
+        if self.pdf_density_dpi < 1:
+            raise ValueError(f"pdf_density_dpi must be >= 1, got {self.pdf_density_dpi}")
+        if not self.pdf_background:
+            raise ValueError("pdf_background must be a non-empty string")
+        if self.pdf_conversion_timeout_seconds < 1:
+            raise ValueError(
+                f"pdf_conversion_timeout_seconds must be >= 1, got {self.pdf_conversion_timeout_seconds}"
             )
 
     @property
@@ -123,4 +144,9 @@ class Configuration:
             cc_addresses=cc_addresses,
             polling_interval_seconds=int(get_optional("POLLING_INTERVAL_SECONDS", "60")),
             max_retry_interval_seconds=int(get_optional("MAX_RETRY_INTERVAL_SECONDS", "900")),
+            pdf_resolution_width=int(get_optional("PDF_RESOLUTION_WIDTH", "1920")),
+            pdf_resolution_height=int(get_optional("PDF_RESOLUTION_HEIGHT", "1080")),
+            pdf_density_dpi=int(get_optional("PDF_DENSITY_DPI", "300")),
+            pdf_background=get_optional("PDF_BACKGROUND", "white"),
+            pdf_conversion_timeout_seconds=int(get_optional("PDF_CONVERSION_TIMEOUT_SECONDS", "120")),
         )

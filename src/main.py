@@ -44,7 +44,7 @@ def main() -> None:
     print("\nInitializing services...")
     imap_service = IMAPService(config)
     smtp_service = SMTPService(config)
-    pdf_converter = PDFConverterService()
+    pdf_converter = PDFConverterService(config)
     whitelist_service = WhitelistService(config.sender_whitelist_regex)
     job_processor = JobProcessorService(
         config=config,
