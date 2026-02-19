@@ -1,7 +1,9 @@
 """Unit tests for PDFConverterService."""
 
+import subprocess
 import tempfile
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
@@ -34,12 +36,18 @@ def test_pdf_converter_raises_error_on_corrupted_pdf():
     """T033 [US1] Unit test: PDFConverterService raises PDFCorruptedError on malformed PDF."""
     converter = PDFConverterService()
 
-    # Create a fake corrupted PDF (just random bytes)
+    mock_result = subprocess.CompletedProcess(
+        args=[], returncode=1, stdout="", stderr="Error: corrupted PDF file"
+    )
+
     with tempfile.TemporaryDirectory() as tmpdir:
         corrupted_pdf = Path(tmpdir) / "corrupted.pdf"
         corrupted_pdf.write_bytes(b"This is not a valid PDF file")
 
-        with pytest.raises(PDFCorruptedError):
+        with (
+            patch("subprocess.run", return_value=mock_result),
+            pytest.raises(PDFCorruptedError),
+        ):
             converter.convert_pdf_to_png(
                 pdf_path=corrupted_pdf, output_prefix="test", temp_dir=Path(tmpdir)
             )
