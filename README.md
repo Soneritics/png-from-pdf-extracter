@@ -201,11 +201,5 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines.
 ## Support
 
 For issues, questions, or contributions:
-- **GitHub Issues**: [repository-url]/issues
+- **GitHub Issues**: https://github.com/Soneritics/png-from-pdf-extracter/issues
 - **Documentation**: [specs/](specs/) directory
-
----
-
-**Version**: 1.0.0  
-**Created**: 2025-01-21  
-**Branch**: 001-pdf-to-png-mailer

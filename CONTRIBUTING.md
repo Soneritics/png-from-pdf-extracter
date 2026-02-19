@@ -14,7 +14,7 @@ Thank you for your interest in contributing! This document provides guidelines f
 
 ```bash
 # Clone repository
-git clone <repository-url>
+git clone https://github.com/Soneritics/png-from-pdf-extracter.git
 cd png-from-pdf-extracter
 
 # Create virtual environment
