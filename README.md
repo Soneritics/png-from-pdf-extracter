@@ -123,12 +123,15 @@ tests/
 
 ## Documentation
 
-- **Quickstart Guide**: [specs/001-pdf-to-png-mailer/quickstart.md](specs/001-pdf-to-png-mailer/quickstart.md)
+- **Full Documentation**: [docs/](docs/index.md)
+- **Getting Started**: [docs/getting-started.md](docs/getting-started.md)
+- **Configuration Reference**: [docs/configuration.md](docs/configuration.md)
+- **Architecture**: [docs/architecture.md](docs/architecture.md)
+- **API Reference**: [docs/api-reference.md](docs/api-reference.md)
+- **Deployment**: [docs/deployment.md](docs/deployment.md)
+- **Development**: [docs/development.md](docs/development.md)
+- **Troubleshooting**: [docs/troubleshooting.md](docs/troubleshooting.md)
 - **Feature Specification**: [specs/001-pdf-to-png-mailer/spec.md](specs/001-pdf-to-png-mailer/spec.md)
-- **Implementation Plan**: [specs/001-pdf-to-png-mailer/plan.md](specs/001-pdf-to-png-mailer/plan.md)
-- **Data Model**: [specs/001-pdf-to-png-mailer/data-model.md](specs/001-pdf-to-png-mailer/data-model.md)
-- **Service Contracts**: [specs/001-pdf-to-png-mailer/contracts/](specs/001-pdf-to-png-mailer/contracts/)
-- **Task Breakdown**: [specs/001-pdf-to-png-mailer/tasks.md](specs/001-pdf-to-png-mailer/tasks.md)
 
 ## Performance
 
