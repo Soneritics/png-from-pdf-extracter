@@ -35,6 +35,7 @@ class PDFConverterService:
         """Initialize PDF converter service."""
         self.target_resolution = (1920, 1080)
         self.target_dpi = 300
+        self.background = "white" # Default for when there is no background, we don't want transparent PNGs
 
     def convert_pdf_to_png(
         self,
@@ -71,7 +72,7 @@ class PDFConverterService:
             "-resize", f"{self.target_resolution[0]}x{self.target_resolution[1]}!",  # Force exact size
             "-extent", f"{self.target_resolution[0]}x{self.target_resolution[1]}!",  # Force exact size
             "-gravity", "center",
-            "-background", "white", # Default for when there is no background, we don't want transparent PNGs
+            "-background", self.background,
             str(output_pattern)
         ]
 
