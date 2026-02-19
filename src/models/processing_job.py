@@ -1,7 +1,7 @@
 """ProcessingJob entity for PDF-to-PNG email processor."""
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
 
 from src.models.email_message import EmailMessage
@@ -38,7 +38,7 @@ class ProcessingJob:
     png_images: list[PNGImage] = field(default_factory=list)
     status: JobStatus = JobStatus.PENDING
     error: Exception | None = None
-    started_at: datetime = field(default_factory=datetime.now)
+    started_at: datetime = field(default_factory=lambda: datetime.now(tz=UTC))
     completed_at: datetime | None = None
     duration_seconds: float | None = None
 
@@ -62,7 +62,7 @@ class ProcessingJob:
     def mark_completed(self) -> None:
         """Mark job as completed successfully."""
         self.status = JobStatus.COMPLETED
-        self.completed_at = datetime.now()
+        self.completed_at = datetime.now(tz=UTC)
         self.duration_seconds = (self.completed_at - self.started_at).total_seconds()
 
     def mark_failed(self, error: Exception) -> None:
@@ -73,5 +73,5 @@ class ProcessingJob:
         """
         self.status = JobStatus.FAILED
         self.error = error
-        self.completed_at = datetime.now()
+        self.completed_at = datetime.now(tz=UTC)
         self.duration_seconds = (self.completed_at - self.started_at).total_seconds()

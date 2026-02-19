@@ -14,7 +14,7 @@ def test_corrupted_pdf_triggers_error_email():
 
 
 def test_password_protected_pdf_triggers_error_email():
-    """T073 [US4] Integration test: Password-protected PDF triggers error email with technical details."""
+    """T073 [US4] Integration test: Password-protected PDF triggers error email."""
     # This test will verify that password-protected PDFs are handled correctly
     # with appropriate error messaging
     pytest.skip("Integration test - requires full service implementation")

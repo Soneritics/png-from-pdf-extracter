@@ -1,8 +1,6 @@
 """Contract tests for GhostScript CLI tool."""
 
 import subprocess
-import tempfile
-from pathlib import Path
 
 import pytest
 
@@ -12,11 +10,7 @@ def test_ghostscript_availability():
     # Test that 'gs' command is available
     try:
         result = subprocess.run(
-            ["gs", "--version"],
-            capture_output=True,
-            text=True,
-            check=True,
-            timeout=5
+            ["gs", "--version"], capture_output=True, text=True, check=True, timeout=5
         )
         assert result.returncode == 0
         # Version should be a number (e.g., "10.02.1")

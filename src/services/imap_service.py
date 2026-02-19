@@ -1,12 +1,13 @@
 """IMAP service for email monitoring and retrieval."""
 
+import contextlib
 import email
 import email.policy
 import email.utils
 import imaplib
 import ssl
 import time
-from datetime import datetime
+from datetime import UTC, datetime
 
 from src.config import Configuration
 from src.models.email_message import EmailMessage
@@ -17,17 +18,14 @@ logger = get_logger()
 
 class IMAPError(Exception):
     """Base exception for IMAP operations."""
-    pass
 
 
 class IMAPConnectionError(IMAPError):
     """Raised when IMAP connection fails after all retry attempts."""
-    pass
 
 
 class IMAPAuthenticationError(IMAPError):
     """Raised when IMAP login credentials are rejected."""
-    pass
 
 
 class IMAPService:
@@ -81,11 +79,8 @@ class IMAPService:
         # Try IMAP4 + STARTTLS
         try:
             self.connection = imaplib.IMAP4(host, port)
-            try:
+            with contextlib.suppress(Exception):
                 self.connection.starttls()
-            except Exception:
-                # STARTTLS failed, connection remains in plaintext mode
-                pass
             self.connection.login(username, password)
             return
         except imaplib.IMAP4.error as e:
@@ -126,8 +121,10 @@ class IMAPService:
 
                 # Log the failure per FR-028
                 logger.error(
-                    f"IMAP connection failed (attempt {attempt}): {e}. "
-                    f"Retrying in {delay} seconds..."
+                    "IMAP connection failed (attempt %d): %s. Retrying in %d seconds...",
+                    attempt,
+                    e,
+                    delay,
                 )
 
                 # Wait before retry
@@ -170,7 +167,7 @@ class IMAPService:
                 status, msg_data = self.connection.fetch(uid, "(RFC822)")
 
                 if status != "OK":
-                    logger.error(f"Failed to fetch message UID {uid}: {status}")
+                    logger.error("Failed to fetch message UID %s: %s", uid, status)
                     continue
 
                 # Parse email
@@ -200,7 +197,7 @@ class IMAPService:
                         subject=subject,
                         body=body,
                         raw_bytes=raw_bytes,
-                        received_at=datetime.now()
+                        received_at=datetime.now(tz=UTC),
                     )
                 )
 

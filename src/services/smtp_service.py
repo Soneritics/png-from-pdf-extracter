@@ -1,5 +1,6 @@
 """SMTP service for sending emails with attachments."""
 
+import contextlib
 import smtplib
 import ssl
 import traceback
@@ -7,7 +8,6 @@ from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from pathlib import Path
 
 from src.config import Configuration
 from src.models.png_image import PNGImage
@@ -18,17 +18,14 @@ logger = get_logger()
 
 class SMTPError(Exception):
     """Base exception for SMTP operations."""
-    pass
 
 
 class SMTPConnectionError(SMTPError):
     """Raised when SMTP connection fails."""
-    pass
 
 
 class SMTPAuthenticationError(SMTPError):
     """Raised when SMTP login credentials are rejected."""
-    pass
 
 
 class SMTPService:
@@ -80,19 +77,14 @@ class SMTPService:
         # Try SMTP + STARTTLS
         try:
             self.connection = smtplib.SMTP(host, port, timeout=30)
-            try:
+            with contextlib.suppress(Exception):
                 self.connection.starttls()
-            except Exception:
-                # STARTTLS failed, connection remains in plaintext mode
-                pass
             self.connection.login(username, password)
             return
         except smtplib.SMTPAuthenticationError as e:
             raise SMTPAuthenticationError(f"SMTP authentication failed: {e}") from e
         except Exception as e:
-            raise SMTPConnectionError(
-                f"SMTP connection failed for {host}:{port}: {e}"
-            ) from e
+            raise SMTPConnectionError(f"SMTP connection failed for {host}:{port}: {e}") from e
 
     def send_reply_with_attachments(
         self,
@@ -100,7 +92,7 @@ class SMTPService:
         subject: str,
         body: str,
         attachments: list[PNGImage],
-        cc_addresses: list[str] | None = None
+        cc_addresses: list[str] | None = None,
     ) -> None:
         """Send reply email with PNG attachments per FR-009, FR-010, FR-011, FR-020.
 
@@ -132,7 +124,7 @@ class SMTPService:
 
         # Attach PNG files
         for png in attachments:
-            with open(png.path, "rb") as f:
+            with png.path.open("rb") as f:
                 part = MIMEBase("image", "png")
                 part.set_payload(f.read())
 
@@ -140,10 +132,7 @@ class SMTPService:
             encoders.encode_base64(part)
 
             # Add header with filename
-            part.add_header(
-                "Content-Disposition",
-                f"attachment; filename= {png.filename}"
-            )
+            part.add_header("Content-Disposition", f"attachment; filename= {png.filename}")
 
             msg.attach(part)
 
@@ -154,20 +143,13 @@ class SMTPService:
 
         # Send email
         try:
-            self.connection.sendmail(
-                self.config.smtp_username,
-                recipients,
-                msg.as_string()
-            )
+            self.connection.sendmail(self.config.smtp_username, recipients, msg.as_string())
         except Exception as e:
-            logger.error(f"Failed to send reply email to {to_address}: {e}")
+            logger.error("Failed to send reply email to %s: %s", to_address, e)
             raise SMTPError(f"Failed to send email: {e}") from e
 
     def send_error_notification(
-        self,
-        to_address: str,
-        error: Exception,
-        context: dict[str, str] | None = None
+        self, to_address: str, error: Exception, context: dict[str, str] | None = None
     ) -> None:
         """Send error notification email with detailed stack trace per FR-012, FR-013.
 
@@ -190,7 +172,7 @@ class SMTPService:
             "An error occurred while processing your PDF attachment.",
             "",
             f"Error Type: {type(error).__name__}",
-            f"Error Message: {str(error)}",
+            f"Error Message: {error!s}",
             "",
             "Technical Details:",
             "-" * 60,
@@ -200,24 +182,22 @@ class SMTPService:
 
         # Add context information if provided
         if context:
-            body_parts.extend([
-                "",
-                "Email Context:",
-                "-" * 60
-            ])
+            body_parts.extend(["", "Email Context:", "-" * 60])
             for key, value in context.items():
                 body_parts.append(f"{key}: {value}")
             body_parts.append("-" * 60)
 
-        body_parts.extend([
-            "",
-            "Please verify your PDF file is:",
-            "- Not corrupted or malformed",
-            "- Not password-protected or encrypted",
-            "- A valid PDF document",
-            "",
-            "If the problem persists, please contact support.",
-        ])
+        body_parts.extend(
+            [
+                "",
+                "Please verify your PDF file is:",
+                "- Not corrupted or malformed",
+                "- Not password-protected or encrypted",
+                "- A valid PDF document",
+                "",
+                "If the problem persists, please contact support.",
+            ]
+        )
 
         body = "\n".join(body_parts)
 
@@ -229,13 +209,9 @@ class SMTPService:
         msg.attach(MIMEText(body, "plain"))
 
         try:
-            self.connection.sendmail(
-                self.config.smtp_username,
-                [to_address],
-                msg.as_string()
-            )
+            self.connection.sendmail(self.config.smtp_username, [to_address], msg.as_string())
         except Exception as e:
-            logger.error(f"Failed to send error notification to {to_address}: {e}")
+            logger.error("Failed to send error notification to %s: %s", to_address, e)
             raise SMTPError(f"Failed to send error notification: {e}") from e
 
     def disconnect(self) -> None:

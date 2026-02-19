@@ -25,10 +25,7 @@ def sanitize_filename(filename: str, max_length: int = 50) -> str:
         'aaaaa...' (truncated to 50 chars)
     """
     # Remove file extension if present
-    if "." in filename:
-        name_without_ext = filename.rsplit(".", 1)[0]
-    else:
-        name_without_ext = filename
+    name_without_ext = filename.rsplit(".", 1)[0] if "." in filename else filename
 
     # Replace non-alphanumeric characters (except underscore and hyphen) with underscore
     sanitized = re.sub(r"[^a-zA-Z0-9_-]", "_", name_without_ext)

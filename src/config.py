@@ -66,14 +66,16 @@ class Configuration:
                 raise ValueError(f"{field_name} must be a non-empty string")
 
         # Validate port ranges
-        if not (1 <= self.imap_port <= 65535):
+        _max_port = 65535
+        _min_polling = 10
+        if not 1 <= self.imap_port <= _max_port:
             raise ValueError(f"imap_port must be in range 1-65535, got {self.imap_port}")
 
-        if not (1 <= self.smtp_port <= 65535):
+        if not 1 <= self.smtp_port <= _max_port:
             raise ValueError(f"smtp_port must be in range 1-65535, got {self.smtp_port}")
 
         # Validate polling intervals
-        if self.polling_interval_seconds < 10:
+        if self.polling_interval_seconds < _min_polling:
             raise ValueError(
                 f"polling_interval_seconds must be ≥10 to prevent excessive polling, "
                 f"got {self.polling_interval_seconds}"
@@ -89,14 +91,17 @@ class Configuration:
         if self.pdf_resolution_width < 1:
             raise ValueError(f"pdf_resolution_width must be >= 1, got {self.pdf_resolution_width}")
         if self.pdf_resolution_height < 1:
-            raise ValueError(f"pdf_resolution_height must be >= 1, got {self.pdf_resolution_height}")
+            raise ValueError(
+                f"pdf_resolution_height must be >= 1, got {self.pdf_resolution_height}"
+            )
         if self.pdf_density_dpi < 1:
             raise ValueError(f"pdf_density_dpi must be >= 1, got {self.pdf_density_dpi}")
         if not self.pdf_background:
             raise ValueError("pdf_background must be a non-empty string")
         if self.pdf_conversion_timeout_seconds < 1:
             raise ValueError(
-                f"pdf_conversion_timeout_seconds must be >= 1, got {self.pdf_conversion_timeout_seconds}"
+                "pdf_conversion_timeout_seconds must be >= 1, "
+                f"got {self.pdf_conversion_timeout_seconds}"
             )
 
     @property
@@ -114,6 +119,7 @@ class Configuration:
         Raises:
             ValueError: If required environment variables are missing or invalid
         """
+
         # Helper to get required env var
         def get_required(key: str) -> str:
             value = os.getenv(key)
@@ -127,9 +133,7 @@ class Configuration:
 
         # Parse CC addresses (semicolon-separated)
         cc_addresses_str = get_optional("CC_ADDRESSES", "")
-        cc_addresses = [
-            addr.strip() for addr in cc_addresses_str.split(";") if addr.strip()
-        ]
+        cc_addresses = [addr.strip() for addr in cc_addresses_str.split(";") if addr.strip()]
 
         return cls(
             imap_host=get_required("IMAP_HOST"),
@@ -148,5 +152,7 @@ class Configuration:
             pdf_resolution_height=int(get_optional("PDF_RESOLUTION_HEIGHT", "1080")),
             pdf_density_dpi=int(get_optional("PDF_DENSITY_DPI", "300")),
             pdf_background=get_optional("PDF_BACKGROUND", "white"),
-            pdf_conversion_timeout_seconds=int(get_optional("PDF_CONVERSION_TIMEOUT_SECONDS", "120")),
+            pdf_conversion_timeout_seconds=int(
+                get_optional("PDF_CONVERSION_TIMEOUT_SECONDS", "120")
+            ),
         )

@@ -24,7 +24,7 @@ def test_whitelist_rejects_invalid_address():
 
 
 def test_whitelist_pattern_matches_domain():
-    """T056 [US2] Unit test: WhitelistService pattern '.*@company\\.com' matches user@company.com."""
+    """T056 [US2] Unit test: WhitelistService pattern matches user@company.com."""
     whitelist = WhitelistService(regex_pattern=".*@company\\.com")
 
     assert whitelist.is_whitelisted("user@company.com") is True
@@ -33,7 +33,7 @@ def test_whitelist_pattern_matches_domain():
 
 
 def test_whitelist_pattern_rejects_different_domain():
-    """T057 [US2] Unit test: WhitelistService pattern '.*@company\\.com' rejects user@external.com."""
+    """T057 [US2] Unit test: WhitelistService pattern rejects user@external.com."""
     whitelist = WhitelistService(regex_pattern=".*@company\\.com")
 
     assert whitelist.is_whitelisted("user@external.com") is False

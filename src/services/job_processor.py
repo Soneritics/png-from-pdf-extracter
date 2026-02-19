@@ -8,8 +8,8 @@ from pathlib import Path
 
 from src.config import Configuration
 from src.models.pdf_attachment import PDFAttachment
-from src.models.processing_job import JobStatus, ProcessingJob
-from src.services.imap_service import IMAPService
+from src.models.processing_job import ProcessingJob
+from src.services.imap_service import IMAPConnectionError, IMAPService
 from src.services.pdf_converter import PDFConverterService
 from src.services.smtp_service import SMTPService
 from src.services.whitelist_service import WhitelistService
@@ -31,7 +31,7 @@ class JobProcessorService:
         imap_service: IMAPService,
         smtp_service: SMTPService,
         pdf_converter: PDFConverterService,
-        whitelist_service: WhitelistService
+        whitelist_service: WhitelistService,
     ) -> None:
         """Initialize job processor with dependencies.
 
@@ -79,7 +79,7 @@ class JobProcessorService:
             if not self.whitelist_service.is_whitelisted(message.sender):
                 # Non-whitelisted sender - ignore silently per FR-014
                 # No processing, no response, no error notification
-                logger.error(f"Ignored email from non-whitelisted sender: {message.sender}")
+                logger.error("Ignored email from non-whitelisted sender: %s", message.sender)
                 # Delete the message to prevent reprocessing
                 self.imap_service.delete_message(message.uid)
                 return
@@ -94,7 +94,7 @@ class JobProcessorService:
 
                 if not pdf_attachments:
                     # No PDFs found - ignore this email (extension of FR-014)
-                    logger.error(f"No PDF attachments found in email from {message.sender}")
+                    logger.error("No PDF attachments found in email from %s", message.sender)
                     # Delete email since there's nothing to process
                     self.imap_service.delete_message(message.uid)
                     return
@@ -112,9 +112,7 @@ class JobProcessorService:
 
                         # Convert to PNG
                         png_images = self.pdf_converter.convert_pdf_to_png(
-                            pdf_path=pdf_path,
-                            output_prefix=pdf.sanitized_name,
-                            temp_dir=temp_path
+                            pdf_path=pdf_path, output_prefix=pdf.sanitized_name, temp_dir=temp_path
                         )
 
                         # Update page count
@@ -137,7 +135,7 @@ class JobProcessorService:
                         subject=subject,
                         body=body,
                         attachments=job.png_images,
-                        cc_addresses=self.config.cc_addresses
+                        cc_addresses=self.config.cc_addresses,
                     )
 
                 # Mark job as completed
@@ -153,33 +151,28 @@ class JobProcessorService:
                 # Send error notification per FR-012, FR-013
                 context = {
                     "Email Subject": message.subject,
-                    "PDF Filenames": ", ".join(
-                        pdf.filename for pdf in job.pdf_attachments
-                    ) if job.pdf_attachments else "None",
+                    "PDF Filenames": ", ".join(pdf.filename for pdf in job.pdf_attachments)
+                    if job.pdf_attachments
+                    else "None",
                     "Sender": message.sender,
                 }
 
                 try:
                     self.smtp_service.send_error_notification(
-                        to_address=message.sender,
-                        error=e,
-                        context=context
+                        to_address=message.sender, error=e, context=context
                     )
                 except Exception as smtp_error:
-                    logger.error(f"Failed to send error notification: {smtp_error}")
+                    logger.error("Failed to send error notification: %s", smtp_error)
 
                 # Log the error per FR-023, FR-024
-                logger.error(
-                    f"Failed to process email from {message.sender}: {e}",
-                    exc_info=True
-                )
+                logger.exception("Failed to process email from %s: %s", message.sender, e)
 
                 # Do NOT delete original email per NFR-007
                 # Email remains in INBOX for manual recovery
 
         except Exception as e:
             # Fatal error in email fetching
-            logger.error(f"Failed to fetch or process emails: {e}", exc_info=True)
+            logger.exception("Failed to fetch or process emails: %s", e)
             raise
 
     def _extract_pdf_attachments(self, message) -> list[PDFAttachment]:
@@ -213,7 +206,7 @@ class JobProcessorService:
                                 filename=filename,
                                 sanitized_name=sanitized_name,
                                 content=content,
-                                size_bytes=len(content)
+                                size_bytes=len(content),
                             )
                         )
 
@@ -245,7 +238,7 @@ class JobProcessorService:
                     self.imap_service.connect_with_backoff()
                     logger.error("IMAP connection restored successfully")
                 except Exception as reconnect_error:
-                    logger.error(f"Failed to reconnect to IMAP: {reconnect_error}")
+                    logger.error("Failed to reconnect to IMAP: %s", reconnect_error)
                     # Continue trying in next iteration
 
             except KeyboardInterrupt:
@@ -254,8 +247,7 @@ class JobProcessorService:
 
             except Exception as e:
                 # Log error but keep running per NFR-011
-                logger.error(f"Error in daemon loop: {e}", exc_info=True)
+                logger.exception("Error in daemon loop: %s", e)
 
             # Sleep for polling interval per FR-001
             time.sleep(self.config.polling_interval_seconds)
-

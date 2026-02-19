@@ -8,13 +8,13 @@ from src.services.job_processor import JobProcessorService
 from src.services.pdf_converter import PDFConverterService
 from src.services.smtp_service import SMTPService
 from src.services.whitelist_service import WhitelistService
-from src.utils.logging import get_logger, setup_logging
+from src.utils.logging import setup_logging
 
 # Setup logging
 logger = setup_logging()
 
 
-def main() -> None:
+def main() -> None:  # noqa: PLR0915
     """Main entry point for the PDF-to-PNG email processor daemon.
 
     Workflow:
@@ -29,14 +29,14 @@ def main() -> None:
         # Load configuration
         print("Loading configuration from environment variables...")
         config = Configuration.from_env()
-        print(f"✓ Configuration loaded successfully")
+        print("✓ Configuration loaded successfully")
         print(f"  IMAP: {config.imap_host}:{config.imap_port}")
         print(f"  SMTP: {config.smtp_host}:{config.smtp_port}")
         print(f"  Whitelist: {config.sender_whitelist_regex}")
         print(f"  Polling interval: {config.polling_interval_seconds}s")
 
     except Exception as e:
-        logger.error(f"Failed to load configuration: {e}", exc_info=True)
+        logger.exception("Failed to load configuration: %s", e)
         print(f"ERROR: Failed to load configuration: {e}", file=sys.stderr)
         sys.exit(1)
 
@@ -51,7 +51,7 @@ def main() -> None:
         imap_service=imap_service,
         smtp_service=smtp_service,
         pdf_converter=pdf_converter,
-        whitelist_service=whitelist_service
+        whitelist_service=whitelist_service,
     )
     print("✓ Services initialized")
 
@@ -61,7 +61,7 @@ def main() -> None:
         imap_service.connect_with_backoff()
         print(f"✓ Connected to IMAP: {config.imap_host}:{config.imap_port}")
     except Exception as e:
-        logger.error(f"Failed to connect to IMAP: {e}", exc_info=True)
+        logger.exception("Failed to connect to IMAP: %s", e)
         print(f"ERROR: Failed to connect to IMAP: {e}", file=sys.stderr)
         sys.exit(1)
 
@@ -71,7 +71,7 @@ def main() -> None:
         smtp_service.connect()
         print(f"✓ Connected to SMTP: {config.smtp_host}:{config.smtp_port}")
     except Exception as e:
-        logger.error(f"Failed to connect to SMTP: {e}", exc_info=True)
+        logger.exception("Failed to connect to SMTP: %s", e)
         print(f"ERROR: Failed to connect to SMTP: {e}", file=sys.stderr)
         sys.exit(1)
 
@@ -97,7 +97,7 @@ def main() -> None:
             smtp_service.disconnect()
             print("✓ Disconnected successfully")
         except Exception as e:
-            logger.error(f"Error during disconnect: {e}")
+            logger.error("Error during disconnect: %s", e)
 
         print("Shutdown complete.")
 

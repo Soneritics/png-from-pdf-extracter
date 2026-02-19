@@ -12,17 +12,14 @@ logger = get_logger()
 
 class PDFConversionError(Exception):
     """Base exception for PDF conversion errors."""
-    pass
 
 
 class PDFCorruptedError(PDFConversionError):
     """Raised when PDF file is corrupted or malformed."""
-    pass
 
 
 class PDFPasswordProtectedError(PDFConversionError):
     """Raised when PDF file is password-protected or encrypted."""
-    pass
 
 
 class PDFConverterService:
@@ -51,10 +48,7 @@ class PDFConverterService:
             self.timeout = 120
 
     def convert_pdf_to_png(
-        self,
-        pdf_path: Path,
-        output_prefix: str,
-        temp_dir: Path
+        self, pdf_path: Path, output_prefix: str, temp_dir: Path
     ) -> list[PNGImage]:
         """Convert PDF file to PNG images (one per page).
 
@@ -80,13 +74,18 @@ class PDFConverterService:
         # Build ImageMagick command
         cmd = [
             "magick",
-            "-density", str(self.target_dpi),  # Set DPI for PDF reading
+            "-density",
+            str(self.target_dpi),  # Set DPI for PDF reading
             str(pdf_path),
-            "-resize", f"{self.target_resolution[0]}x{self.target_resolution[1]}!",  # Force exact size
-            "-extent", f"{self.target_resolution[0]}x{self.target_resolution[1]}!",  # Force exact size
-            "-gravity", "center",
-            "-background", self.background,
-            str(output_pattern)
+            "-resize",
+            f"{self.target_resolution[0]}x{self.target_resolution[1]}!",
+            "-extent",
+            f"{self.target_resolution[0]}x{self.target_resolution[1]}!",
+            "-gravity",
+            "center",
+            "-background",
+            self.background,
+            str(output_pattern),
         ]
 
         try:
@@ -95,7 +94,7 @@ class PDFConverterService:
                 capture_output=True,
                 text=True,
                 timeout=self.timeout,
-                check=False  # Don't raise exception, we'll handle errors manually
+                check=False,  # Don't raise exception, we'll handle errors manually
             )
 
             # Check for specific error patterns
@@ -109,14 +108,17 @@ class PDFConverterService:
                     )
 
                 # Check for corruption
-                if "corrupt" in stderr_lower or "invalid" in stderr_lower or "error" in stderr_lower:
-                    raise PDFCorruptedError(
-                        f"PDF is corrupted or malformed: {result.stderr}"
-                    )
+                if (
+                    "corrupt" in stderr_lower
+                    or "invalid" in stderr_lower
+                    or "error" in stderr_lower
+                ):
+                    raise PDFCorruptedError(f"PDF is corrupted or malformed: {result.stderr}")
 
                 # Generic conversion error
                 raise PDFConversionError(
-                    f"ImageMagick conversion failed (exit code {result.returncode}): {result.stderr}"
+                    f"ImageMagick conversion failed "
+                    f"(exit code {result.returncode}): {result.stderr}"
                 )
 
         except subprocess.TimeoutExpired as e:
@@ -133,8 +135,7 @@ class PDFConverterService:
 
         if not png_files:
             raise PDFConversionError(
-                f"No PNG files generated from PDF: {pdf_path}. "
-                "PDF may be empty or have 0 pages."
+                f"No PNG files generated from PDF: {pdf_path}. PDF may be empty or have 0 pages."
             )
 
         # Create PNGImage objects for each generated file
@@ -152,7 +153,7 @@ class PDFConverterService:
                     page_number=page_number,
                     size_bytes=png_path.stat().st_size,
                     resolution=self.target_resolution,
-                    density_dpi=self.target_dpi
+                    density_dpi=self.target_dpi,
                 )
             )
 

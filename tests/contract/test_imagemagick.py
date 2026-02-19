@@ -12,11 +12,7 @@ def test_imagemagick_availability():
     # Test that 'magick' command is available
     try:
         result = subprocess.run(
-            ["magick", "--version"],
-            capture_output=True,
-            text=True,
-            check=True,
-            timeout=5
+            ["magick", "--version"], capture_output=True, text=True, check=True, timeout=5
         )
         assert "ImageMagick" in result.stdout
         assert result.returncode == 0
@@ -27,7 +23,7 @@ def test_imagemagick_availability():
 
 
 def test_imagemagick_single_page_conversion():
-    """T028 [US1] Contract test: ImageMagick converts single-page PDF to 1920x1080 PNG at 300 DPI."""
+    """T028 [US1] Contract test: ImageMagick converts single-page PDF to PNG."""
     # Create a minimal single-page PDF for testing
     with tempfile.TemporaryDirectory() as tmpdir:
         pdf_path = Path(tmpdir) / "test.pdf"
@@ -37,14 +33,16 @@ def test_imagemagick_single_page_conversion():
         subprocess.run(
             [
                 "magick",
-                "-size", "1920x1080",
+                "-size",
+                "1920x1080",
                 "xc:white",  # Solid white canvas
-                "-density", "300",
-                str(pdf_path)
+                "-density",
+                "300",
+                str(pdf_path),
             ],
             check=True,
             capture_output=True,
-            timeout=10
+            timeout=10,
         )
 
         assert pdf_path.exists(), "Test PDF creation failed"
@@ -53,15 +51,19 @@ def test_imagemagick_single_page_conversion():
         result = subprocess.run(
             [
                 "magick",
-                "-density", "300",
+                "-density",
+                "300",
                 str(pdf_path),
-                "-resize", "1920x1080!",
-                "-quality", "95",
-                str(output_pattern)
+                "-resize",
+                "1920x1080!",
+                "-quality",
+                "95",
+                str(output_pattern),
             ],
             capture_output=True,
             text=True,
-            timeout=10
+            timeout=10,
+            check=False,
         )
 
         # Should succeed
@@ -77,7 +79,7 @@ def test_imagemagick_single_page_conversion():
             capture_output=True,
             text=True,
             check=True,
-            timeout=5
+            timeout=5,
         )
         resolution = identify_result.stdout.strip()
         assert resolution == "1920x1080", f"Expected 1920x1080, got {resolution}"
@@ -93,29 +95,37 @@ def test_imagemagick_multipage_conversion():
         subprocess.run(
             [
                 "magick",
-                "-size", "1920x1080",
-                "xc:white", "xc:gray", "xc:black",  # 3 pages with different colors
-                "-density", "300",
-                str(pdf_path)
+                "-size",
+                "1920x1080",
+                "xc:white",
+                "xc:gray",
+                "xc:black",  # 3 pages with different colors
+                "-density",
+                "300",
+                str(pdf_path),
             ],
             check=True,
             capture_output=True,
-            timeout=10
+            timeout=10,
         )
 
         # Convert to PNG
         result = subprocess.run(
             [
                 "magick",
-                "-density", "300",
+                "-density",
+                "300",
                 str(pdf_path),
-                "-resize", "1920x1080!",
-                "-quality", "95",
-                str(output_pattern)
+                "-resize",
+                "1920x1080!",
+                "-quality",
+                "95",
+                str(output_pattern),
             ],
             capture_output=True,
             text=True,
-            timeout=15
+            timeout=15,
+            check=False,
         )
 
         assert result.returncode == 0, f"Conversion failed: {result.stderr}"
