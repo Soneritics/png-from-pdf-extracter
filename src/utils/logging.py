@@ -1,22 +1,24 @@
-"""Minimal error-only logging setup for PDF-to-PNG email processor."""
+"""Logging setup for PDF-to-PNG email processor."""
 
 import logging
+import os
 import sys
 
 
 def setup_logging() -> logging.Logger:
-    """Configure error-only logging per FR-023, FR-024, NFR-001, NFR-002.
+    """Configure logging per FR-023, FR-024, NFR-001, NFR-002.
 
-    Only ERROR and CRITICAL level messages are logged to minimize log volume.
-    Successful operations (email processing, PNG conversions) are NOT logged.
+    Log level is controlled by the LOG_LEVEL environment variable
+    (default: INFO). Accepted values: DEBUG, INFO, WARNING, ERROR, CRITICAL.
 
     Returns:
         Configured logger instance
     """
     logger = logging.getLogger("pdf_to_png_mailer")
 
-    # Set to ERROR level - only log errors and critical issues
-    logger.setLevel(logging.INFO)
+    level_name = os.getenv("LOG_LEVEL", "INFO").upper()
+    level = getattr(logging, level_name, logging.INFO)
+    logger.setLevel(level)
 
     # Create console handler
     handler = logging.StreamHandler(sys.stderr)

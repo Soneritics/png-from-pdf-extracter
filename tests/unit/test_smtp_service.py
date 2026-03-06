@@ -57,7 +57,7 @@ class TestSMTPServiceConnect:
 
         smtp_service.connect()
 
-        mock_smtplib.SMTP_SSL.assert_called_once_with("smtp.test.com", 587, timeout=30)
+        mock_smtplib.SMTP_SSL.assert_called_once_with("smtp.test.com", 587, timeout=120)
         mock_conn.login.assert_called_once_with("user@test.com", "secret")
 
     @patch("src.services.smtp_service.smtplib")

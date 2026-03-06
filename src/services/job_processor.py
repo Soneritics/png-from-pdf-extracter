@@ -74,6 +74,7 @@ class JobProcessorService:
 
             # Process first message only (sequential processing per FR-022)
             message = messages[0]
+            logger.info("Processing email from %s: %s", message.sender, message.subject)
 
             # Validate sender against whitelist per FR-002, FR-014
             if not self.whitelist_service.is_whitelisted(message.sender):
@@ -130,6 +131,12 @@ class JobProcessorService:
                         f"Please find the PNG images attached."
                     )
 
+                    logger.info(
+                        "Sending reply to %s with %d PNG attachments",
+                        message.sender,
+                        len(job.png_images),
+                    )
+
                     self.smtp_service.send_reply_with_attachments(
                         to_address=message.sender,
                         subject=subject,
@@ -140,6 +147,7 @@ class JobProcessorService:
 
                 # Mark job as completed
                 job.mark_completed()
+                logger.info("Successfully processed email from %s", message.sender)
 
                 # Delete original email per FR-021
                 self.imap_service.delete_message(message.uid)

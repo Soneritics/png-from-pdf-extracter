@@ -61,11 +61,13 @@ class SMTPService:
         port = self.config.smtp_port
         username = self.config.smtp_username
         password = self.config.smtp_password
+        timeout = self.config.smtp_timeout_seconds
 
         # Try SMTP_SSL first (ports 465, 587)
         try:
-            self.connection = smtplib.SMTP_SSL(host, port, timeout=30)
+            self.connection = smtplib.SMTP_SSL(host, port, timeout=timeout)
             self.connection.login(username, password)
+            logger.info("SMTP connected via SSL to %s:%d", host, port)
             return
         except ssl.SSLError:
             # SSL failed, will try STARTTLS next
@@ -78,10 +80,11 @@ class SMTPService:
 
         # Try SMTP + STARTTLS
         try:
-            self.connection = smtplib.SMTP(host, port, timeout=30)
+            self.connection = smtplib.SMTP(host, port, timeout=timeout)
             with contextlib.suppress(Exception):
                 self.connection.starttls()
             self.connection.login(username, password)
+            logger.info("SMTP connected via STARTTLS to %s:%d", host, port)
             return
         except smtplib.SMTPAuthenticationError as e:
             raise SMTPAuthenticationError(f"SMTP authentication failed: {e}") from e
@@ -233,8 +236,11 @@ class SMTPService:
         for attempt in range(1, self.MAX_SEND_RETRIES + 1):
             try:
                 if not self.connection:
+                    logger.info("SMTP connection not active, reconnecting...")
                     self.connect()
                 send_fn()
+                if attempt > 1:
+                    logger.info("SMTP send succeeded on attempt %d", attempt)
                 return
             except SMTPAuthenticationError:
                 raise

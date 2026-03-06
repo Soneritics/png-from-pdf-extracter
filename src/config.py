@@ -39,6 +39,9 @@ class Configuration:
     pdf_background: str = "white"
     pdf_conversion_timeout_seconds: int = 120
 
+    # SMTP timeout
+    smtp_timeout_seconds: int = 120
+
     def __post_init__(self) -> None:
         """Validate configuration after initialization."""
         self._validate()
@@ -103,6 +106,10 @@ class Configuration:
                 "pdf_conversion_timeout_seconds must be >= 1, "
                 f"got {self.pdf_conversion_timeout_seconds}"
             )
+        if self.smtp_timeout_seconds < 1:
+            raise ValueError(
+                f"smtp_timeout_seconds must be >= 1, got {self.smtp_timeout_seconds}"
+            )
 
     @property
     def compiled_whitelist(self) -> re.Pattern:
@@ -155,4 +162,5 @@ class Configuration:
             pdf_conversion_timeout_seconds=int(
                 get_optional("PDF_CONVERSION_TIMEOUT_SECONDS", "120")
             ),
+            smtp_timeout_seconds=int(get_optional("SMTP_TIMEOUT_SECONDS", "120")),
         )
