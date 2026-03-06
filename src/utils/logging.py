@@ -16,11 +16,11 @@ def setup_logging() -> logging.Logger:
     logger = logging.getLogger("pdf_to_png_mailer")
 
     # Set to ERROR level - only log errors and critical issues
-    logger.setLevel(logging.ERROR)
+    logger.setLevel(logging.INFO)
 
     # Create console handler
     handler = logging.StreamHandler(sys.stderr)
-    handler.setLevel(logging.ERROR)
+    handler.setLevel(logging.DEBUG)
 
     # Create formatter with timestamp, level, and message
     formatter = logging.Formatter(

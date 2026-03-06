@@ -88,27 +88,6 @@ class SMTPService:
         except Exception as e:
             raise SMTPConnectionError(f"SMTP connection failed for {host}:{port}: {e}") from e
 
-    def _ensure_connected(self) -> None:
-        """Verify SMTP connection is alive, reconnecting if needed.
-
-        Uses NOOP to probe the connection. On any failure, disconnects
-        and re-establishes a fresh connection.
-
-        Raises:
-            SMTPConnectionError: If reconnection fails
-        """
-        if self.connection:
-            try:
-                status = self.connection.noop()[0]
-                if status == 250:
-                    return
-            except Exception:
-                pass
-
-        logger.info("SMTP connection lost or stale — reconnecting")
-        self.disconnect()
-        self.connect()
-
     def send_reply_with_attachments(
         self,
         to_address: str,
@@ -247,15 +226,17 @@ class SMTPService:
 
         Raises:
             SMTPError: If sending fails after all retries
+            SMTPAuthenticationError: Immediately on authentication failure
         """
         last_error: Exception | None = None
 
         for attempt in range(1, self.MAX_SEND_RETRIES + 1):
             try:
-                self._ensure_connected()
+                if not self.connection:
+                    self.connect()
                 send_fn()
                 return
-            except SMTPConnectionError:
+            except SMTPAuthenticationError:
                 raise
             except Exception as e:
                 last_error = e
@@ -266,7 +247,6 @@ class SMTPService:
                     error_context,
                     e,
                 )
-                # Force reconnect on next attempt
                 self.disconnect()
 
         logger.error("Failed to %s after %d attempts", error_context, self.MAX_SEND_RETRIES)
