@@ -5,7 +5,6 @@ import ssl
 import tempfile
 from pathlib import Path
 from unittest.mock import MagicMock, patch
-
 import pytest
 
 from src.models.png_image import PNGImage
@@ -113,9 +112,10 @@ class TestSMTPServiceConnect:
 class TestSMTPServiceSendReply:
     """Tests for SMTPService.send_reply_with_attachments()."""
 
-    def test_send_no_connection_raises(self, smtp_service):
-        """send raises when not connected."""
-        with pytest.raises(SMTPError, match="not established"):
+    @patch.object(SMTPService, "connect", side_effect=SMTPConnectionError("conn failed"))
+    def test_send_no_connection_raises(self, _mock_connect, smtp_service):
+        """send raises when reconnection fails."""
+        with pytest.raises(SMTPConnectionError, match="conn failed"):
             smtp_service.send_reply_with_attachments(
                 to_address="a@b.com", subject="Re: Test", body="Done", attachments=[]
             )
@@ -123,6 +123,7 @@ class TestSMTPServiceSendReply:
     def test_send_with_attachments(self, smtp_service):
         """send constructs email with PNG attachments."""
         mock_conn = MagicMock()
+        mock_conn.noop.return_value = (250, b"OK")
         smtp_service.connection = mock_conn
 
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -143,6 +144,7 @@ class TestSMTPServiceSendReply:
     def test_send_with_cc(self, smtp_service):
         """send includes CC recipients."""
         mock_conn = MagicMock()
+        mock_conn.noop.return_value = (250, b"OK")
         smtp_service.connection = mock_conn
 
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -160,32 +162,63 @@ class TestSMTPServiceSendReply:
         assert "boss@test.com" in args[0][1]
 
     def test_send_failure_raises(self, smtp_service):
-        """send raises SMTPError on sendmail failure."""
+        """send raises SMTPError on sendmail failure after retries."""
         mock_conn = MagicMock()
+        mock_conn.noop.return_value = (250, b"OK")
         mock_conn.sendmail.side_effect = Exception("network error")
         smtp_service.connection = mock_conn
 
         with (
             tempfile.TemporaryDirectory() as tmpdir,
-            pytest.raises(SMTPError, match="Failed to send email"),
+            patch.object(SMTPService, "connect") as mock_connect,
+            pytest.raises(SMTPError, match="Failed to send reply email"),
         ):
+            # After first failure, disconnect resets connection; reconnect restores it
+            mock_connect.side_effect = lambda: setattr(smtp_service, "connection", mock_conn)
             png = _make_png_image(Path(tmpdir))
             smtp_service.send_reply_with_attachments(
                 to_address="a@b.com", subject="S", body="B", attachments=[png]
             )
 
+    def test_send_retries_on_stale_connection(self, smtp_service):
+        """send reconnects and retries when first attempt fails."""
+        stale_conn = MagicMock()
+        stale_conn.noop.return_value = (250, b"OK")
+        stale_conn.sendmail.side_effect = smtplib.SMTPServerDisconnected("disconnected")
+
+        fresh_conn = MagicMock()
+        fresh_conn.noop.return_value = (250, b"OK")
+        smtp_service.connection = stale_conn
+
+        with (
+            tempfile.TemporaryDirectory() as tmpdir,
+            patch.object(SMTPService, "connect") as mock_connect,
+        ):
+            mock_connect.side_effect = lambda: setattr(smtp_service, "connection", fresh_conn)
+            png = _make_png_image(Path(tmpdir))
+            smtp_service.send_reply_with_attachments(
+                to_address="alice@test.com",
+                subject="Re: PDF",
+                body="Retried",
+                attachments=[png],
+            )
+
+        fresh_conn.sendmail.assert_called_once()
+
 
 class TestSMTPServiceSendError:
     """Tests for SMTPService.send_error_notification()."""
 
-    def test_send_error_no_connection_raises(self, smtp_service):
-        """send_error raises when not connected."""
-        with pytest.raises(SMTPError, match="not established"):
+    @patch.object(SMTPService, "connect", side_effect=SMTPConnectionError("conn failed"))
+    def test_send_error_no_connection_raises(self, _mock_connect, smtp_service):
+        """send_error raises when reconnection fails."""
+        with pytest.raises(SMTPConnectionError, match="conn failed"):
             smtp_service.send_error_notification(to_address="a@b.com", error=RuntimeError("fail"))
 
     def test_send_error_notification(self, smtp_service):
         """send_error constructs error email."""
         mock_conn = MagicMock()
+        mock_conn.noop.return_value = (250, b"OK")
         smtp_service.connection = mock_conn
 
         smtp_service.send_error_notification(
@@ -198,6 +231,7 @@ class TestSMTPServiceSendError:
     def test_send_error_with_context(self, smtp_service):
         """send_error includes context dict in body."""
         mock_conn = MagicMock()
+        mock_conn.noop.return_value = (250, b"OK")
         smtp_service.connection = mock_conn
 
         smtp_service.send_error_notification(
@@ -212,12 +246,17 @@ class TestSMTPServiceSendError:
         assert "ValueError" in email_body
 
     def test_send_error_failure_raises(self, smtp_service):
-        """send_error raises SMTPError on failure."""
+        """send_error raises SMTPError on failure after retries."""
         mock_conn = MagicMock()
+        mock_conn.noop.return_value = (250, b"OK")
         mock_conn.sendmail.side_effect = Exception("network error")
         smtp_service.connection = mock_conn
 
-        with pytest.raises(SMTPError, match="Failed to send error notification"):
+        with (
+            patch.object(SMTPService, "connect") as mock_connect,
+            pytest.raises(SMTPError, match="Failed to send error notification"),
+        ):
+            mock_connect.side_effect = lambda: setattr(smtp_service, "connection", mock_conn)
             smtp_service.send_error_notification(to_address="a@b.com", error=RuntimeError("fail"))
 
 

@@ -34,6 +34,8 @@ class SMTPService:
     Implements FR-009, FR-010, FR-011, FR-012, FR-013, FR-020, FR-025, FR-026.
     """
 
+    MAX_SEND_RETRIES = 2
+
     def __init__(self, config: Configuration) -> None:
         """Initialize SMTP service with configuration.
 
@@ -86,6 +88,27 @@ class SMTPService:
         except Exception as e:
             raise SMTPConnectionError(f"SMTP connection failed for {host}:{port}: {e}") from e
 
+    def _ensure_connected(self) -> None:
+        """Verify SMTP connection is alive, reconnecting if needed.
+
+        Uses NOOP to probe the connection. On any failure, disconnects
+        and re-establishes a fresh connection.
+
+        Raises:
+            SMTPConnectionError: If reconnection fails
+        """
+        if self.connection:
+            try:
+                status = self.connection.noop()[0]
+                if status == 250:
+                    return
+            except Exception:
+                pass
+
+        logger.info("SMTP connection lost or stale — reconnecting")
+        self.disconnect()
+        self.connect()
+
     def send_reply_with_attachments(
         self,
         to_address: str,
@@ -106,9 +129,6 @@ class SMTPService:
         Raises:
             SMTPError: If email sending fails
         """
-        if not self.connection:
-            raise SMTPError("SMTP connection not established. Call connect() first.")
-
         # Create multipart message
         msg = MIMEMultipart()
         msg["From"] = self.config.smtp_username
@@ -141,12 +161,13 @@ class SMTPService:
         if cc_addresses:
             recipients.extend(cc_addresses)
 
-        # Send email
-        try:
-            self.connection.sendmail(self.config.smtp_username, recipients, msg.as_string())
-        except Exception as e:
-            logger.error("Failed to send reply email to %s: %s", to_address, e)
-            raise SMTPError(f"Failed to send email: {e}") from e
+        # Send email with reconnection retry
+        self._send_with_retry(
+            lambda: self.connection.sendmail(
+                self.config.smtp_username, recipients, msg.as_string()
+            ),
+            error_context=f"send reply email to {to_address}",
+        )
 
     def send_error_notification(
         self, to_address: str, error: Exception, context: dict[str, str] | None = None
@@ -161,8 +182,6 @@ class SMTPService:
         Raises:
             SMTPError: If email sending fails
         """
-        if not self.connection:
-            raise SMTPError("SMTP connection not established. Call connect() first.")
 
         # Build error email subject
         subject = f"Error processing your PDF: {type(error).__name__}"
@@ -208,11 +227,50 @@ class SMTPService:
         msg["Subject"] = subject
         msg.attach(MIMEText(body, "plain"))
 
-        try:
-            self.connection.sendmail(self.config.smtp_username, [to_address], msg.as_string())
-        except Exception as e:
-            logger.error("Failed to send error notification to %s: %s", to_address, e)
-            raise SMTPError(f"Failed to send error notification: {e}") from e
+        # Send error email with reconnection retry
+        self._send_with_retry(
+            lambda: self.connection.sendmail(
+                self.config.smtp_username, [to_address], msg.as_string()
+            ),
+            error_context=f"send error notification to {to_address}",
+        )
+
+    def _send_with_retry(self, send_fn, *, error_context: str) -> None:
+        """Execute a send operation with automatic reconnection on failure.
+
+        On the first failure the connection is re-established and the
+        send is retried up to MAX_SEND_RETRIES times.
+
+        Args:
+            send_fn: Callable that performs the actual SMTP send
+            error_context: Human-readable description for log messages
+
+        Raises:
+            SMTPError: If sending fails after all retries
+        """
+        last_error: Exception | None = None
+
+        for attempt in range(1, self.MAX_SEND_RETRIES + 1):
+            try:
+                self._ensure_connected()
+                send_fn()
+                return
+            except SMTPConnectionError:
+                raise
+            except Exception as e:
+                last_error = e
+                logger.warning(
+                    "SMTP send attempt %d/%d failed (%s): %s",
+                    attempt,
+                    self.MAX_SEND_RETRIES,
+                    error_context,
+                    e,
+                )
+                # Force reconnect on next attempt
+                self.disconnect()
+
+        logger.error("Failed to %s after %d attempts", error_context, self.MAX_SEND_RETRIES)
+        raise SMTPError(f"Failed to {error_context}: {last_error}") from last_error
 
     def disconnect(self) -> None:
         """Close SMTP connection gracefully."""
