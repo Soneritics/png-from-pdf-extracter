@@ -203,6 +203,9 @@ class IMAPService:
 
             return messages
 
+        except (imaplib.IMAP4.abort, BrokenPipeError, ConnectionError, OSError) as e:
+            self.disconnect()
+            raise IMAPConnectionError(f"Failed to fetch unseen messages: {e}") from e
         except Exception as e:
             raise IMAPError(f"Failed to fetch unseen messages: {e}") from e
 
@@ -225,6 +228,9 @@ class IMAPService:
             # Expunge to permanently delete
             self.connection.expunge()
 
+        except (imaplib.IMAP4.abort, BrokenPipeError, ConnectionError, OSError) as e:
+            self.disconnect()
+            raise IMAPConnectionError(f"Failed to delete message UID {uid}: {e}") from e
         except Exception as e:
             raise IMAPError(f"Failed to delete message UID {uid}: {e}") from e
 

@@ -9,7 +9,7 @@ from pathlib import Path
 from src.config import Configuration
 from src.models.pdf_attachment import PDFAttachment
 from src.models.processing_job import ProcessingJob
-from src.services.imap_service import IMAPConnectionError, IMAPService
+from src.services.imap_service import IMAPConnectionError, IMAPError, IMAPService
 from src.services.pdf_converter import PDFConverterService
 from src.services.smtp_service import SMTPService
 from src.services.whitelist_service import WhitelistService
@@ -239,12 +239,13 @@ class JobProcessorService:
                 # Process next email
                 self.process_next_email()
 
-            except IMAPConnectionError:
+            except (IMAPConnectionError, IMAPError) as e:
                 # IMAP connection lost - reconnect with backoff per FR-027
-                logger.error("IMAP connection lost. Attempting reconnection with backoff...")
+                logger.error("IMAP connection error: %s. Attempting reconnection with backoff...", e)
+                self.imap_service.disconnect()
                 try:
                     self.imap_service.connect_with_backoff()
-                    logger.error("IMAP connection restored successfully")
+                    logger.info("IMAP connection restored successfully")
                 except Exception as reconnect_error:
                     logger.error("Failed to reconnect to IMAP: %s", reconnect_error)
                     # Continue trying in next iteration
